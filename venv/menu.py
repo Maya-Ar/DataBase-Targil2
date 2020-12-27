@@ -1,19 +1,21 @@
-
 from main import *
+from ASS2 import *
 import random
 import copy
+
+
 def menu_part():
     print("Hello, Please Enter Your Query")
-    #query = input()
-    #query = "SELECT R.D, S.E FROM R,S WHERE R.D>4 " ###not working -  the problem is on create query: condition of sigma is just R.D> and not R.D>4    :(
-    #    query = "SELECT R.D, S.E FROM R,S WHERE (S.B>4 AND (R.A=10 AND S.E=2)) AND S.A=4 ;"
-    #query = "SELECT R.D, S.E FROM R,S WHERE (S.B>4 OR (R.A=10 OR S.E=2)) AND S.A=4 ;" ##not working
-    #query = "SELECT R.D, S.E FROM R,S WHERE S.E = R.E AND S.D = R.D;"
-    query = "SELECT R.D, S.E FROM R,S WHERE S.B>4 AND S.B=12 ;"
-  #  query = "SELECT R.D, S.E FROM R,S WHERE S.B>4 AND (S.B=12 AND S.C=6) ;"
-   # query = "SELECT R.D, S.E FROM R,S WHERE S.B>4 OR (S.B=12 AND S.C=6) ;"
-   #query = "SELECT R.D, S.E FROM R,S WHERE (S.B=12 AND S.C=6) OR (S.B=12 AND S.C=6) ;" ##not working
-
+    # query = input()
+    # query = "SELECT R.D, S.E FROM R,S WHERE R.D>4 " ###not working -  the problem is on create query: condition of sigma is just R.D> and not R.D>4    :(
+    # query = "SELECT R.D, S.E FROM R,S WHERE (S.B>4 AND (R.A=10 AND S.E=2)) AND S.A=4 ;"
+    # query = "SELECT R.D, S.E FROM R,S WHERE (S.B>4 OR (R.A=10 OR S.E=2)) AND S.A=4 ;" ##not working
+    # query = "SELECT R.D, S.E FROM R,S WHERE S.E = R.E AND S.D = R.D;"
+    # query = "SELECT R.D, S.E FROM R,S WHERE R.D=4 AND R.A=10 ;"
+    # query = "SELECT R.D, S.E FROM R,S WHERE S.B>4 AND (S.B=12 AND S.C=6) ;"
+    # query = "SELECT R.D, S.E FROM R,S WHERE S.B>4 OR (S.B=12 AND S.C=6) ;"
+    #query = "SELECT R.D, S.E FROM R,S WHERE (S.E=12 AND S.H=6) OR (S.I=12 AND S.D=6) ;"  ##not working
+    query = "SELECT R.A, R.B, R.C. R.D, R.E, S.D, S.E, S.F, S.G, S.I, S.H FROM R,S WHERE (R.A=10 AND S.H=12)  AND (S.E = 2 AND S.D = 3) ;"
 
     my_option = Switch(query)
     while True:
@@ -36,6 +38,7 @@ class Switch():
     def __init__(self, query):
         self.query = query
         self.list = None
+        self.four_lists = None
 
     def switch_function(self, option):
         default = "Invalid Option"
@@ -51,25 +54,18 @@ class Switch():
         self.switch_rule(rule)
 
     def function_part_1(self):
-        print("part 1", self.query)
+        print(self.query)
         self.menu_rule()
 
     def function_part_2(self):
-        # main_list1 = create_list(self.query)
-        # main_list12 = create_list(self.query)
-        # print(main_list1.head.is_equal(main_list12.head))
 
         lists_arr = [None, None, None, None]
-        rules_arr = ["4a", "5a", "6", "6a", "11b"] #add 4
-        #main_list = create_list(self.query)
+        rules_arr = ["4", "4a", "5a", "6", "6a", "11b"]
 
         while lists_arr[3] is None:
-            #main_list = None
             for i in range(10):
                 rule = random.choice(rules_arr)
                 main_list = self.switch_rule(rule)
-                print(rule)
-                main_list.print_query()
             index = lists_arr.index(None)
             flag = False
             for j in range(index):
@@ -77,12 +73,7 @@ class Switch():
                     flag = True
             if not flag:
                 lists_arr[index] = copy.deepcopy(main_list)
-            for y in range(4):
-                print("arr[", y, "] ", end='', sep='')
-                if lists_arr[y] is not None:
-                    lists_arr[y].print_query()
-                else:
-                    print("None")
+
             self.list = None
 
         for y in range(4):
@@ -91,14 +82,101 @@ class Switch():
                 lists_arr[y].print_query()
             else:
                 print("None")
-
+        self.four_lists = lists_arr
 
     def function_part_3(self):
-        print("part 3")
+        f = open("statistics.txt", "r+")
+        file_arr = f.readlines()
+        n_R = (int)(file_arr[2].split("=")[1])
+        n_S = (int)(file_arr[11].split("=")[1])
+        arr_R = [0, 0, 0, 0, 0]
+        arr_S = [0, 0, 0, 0, 0]
+
+        line1 = 3
+        line2 = 12
+        for i in range(5):
+            arr_R[i] = int(file_arr[line1].split("=")[1])
+            arr_S[i] = int(file_arr[line2].split("=")[1])
+            line1 = line1 + 1
+            line2 = line2 + 1
+
+        f.close()
+        self.function_part_2()
+
+        for j in range(4):
+            main_list = self.four_lists[j]
+            print(f"query number {j + 1}:")
+            main_list.print_query()
+            print('\n')
+            new_list = main_list.reverse_list()
+
+            variables = information_for_3()
+            variables_R = information_for_3()
+            variables_S = information_for_3()
+            curr = new_list.head
+            while curr:
+                if curr.name == "CARTESIAN" or curr.name == "NJOIN":
+                    new_R_list = curr.list_sigma_R_inside.reverse_list()
+                    new_S_list = curr.list_sigma_S_inside.reverse_list()
+
+                    curr_S = new_S_list.head
+                    curr_S = curr_S.next
+                    variables_S.input_n = n_S
+                    variables_S.input_r = 20
+                    while curr_S:
+                        if curr_S.name == "SIGMA":
+                            print_sigma(curr_S, variables_S, arr_R, arr_S)
+
+                        curr_S = curr_S.next
+
+                    curr_R = new_R_list.head
+                    variables_R.input_n = n_R
+                    variables_R.input_r = 20
+                    curr_R = curr_R.next
+                    while curr_R:
+                        if curr_R.name == "SIGMA":
+                            print_sigma(curr_R, variables_R, arr_R, arr_S)
+                        curr_R = curr_R.next
+
+                    print_cartesian(curr, variables, variables_R, variables_S)
+
+                if curr.name == "SIGMA":
+                    print_sigma(curr, variables, arr_R, arr_S)
+
+                if curr.name == "PI":
+                    print_pi(curr, variables)
+
+                curr = curr.next
 
     def rule_4(self):
-
         print("rule_4")
+        if self.list is None:
+            main_list = create_list(self.query)
+        else:
+            main_list = self.list
+
+        curr = main_list.head
+
+        while curr is not None:
+            if curr.name == "SIGMA":
+                condition = curr.condition
+                ANDindex = find_and(condition)
+                if ANDindex != -1:
+                    left_exp = condition[:ANDindex]
+                    right_exp = condition[ANDindex + 3:]
+                    temp = curr.next
+                    add_sigma = Node()
+                    add_sigma.name = "SIGMA"
+                    add_sigma.condition = right_exp
+                    curr.condition = left_exp
+                    curr.next = add_sigma
+                    add_sigma.next = temp
+                    break
+            curr = curr.next
+
+        self.list = main_list
+        main_list.print_query()
+        return main_list
 
     def rule_4a(self):
         print("rule 4a")
@@ -114,7 +192,10 @@ class Switch():
                 sigma_1 = curr
                 if curr.next.name == "SIGMA":
                     sigma_2 = curr.next
-                    prev.next = sigma_2
+                    if prev:
+                        prev.next = sigma_2
+                    else:
+                        main_list.head = sigma_2
                     temp = sigma_2.next
                     sigma_2.next = sigma_1
                     sigma_1.next = temp
@@ -125,7 +206,6 @@ class Switch():
         main_list.print_query()
         return main_list
 
-
     def rule_6(self):
         print("rule 6")
 
@@ -133,26 +213,23 @@ class Switch():
             main_list = create_list(self.query)
         else:
             main_list = self.list
-        main_list.print_query()
         curr = main_list.head
-        prev = None
         arr = ["R.A", "R.B", "R.C", "R.D", "R.E"]
         while curr is not None:
             if curr.name == "SIGMA":
                 sigma = curr.condition
-
-                if curr.next.name == "CARTESIAN" or curr.next.name == "NJOIN":
-                    if is_condition(sigma, arr):
-                        add_to_R = Node()
-                        add_to_R.name = "SIGMA"
-                        add_to_R.condition = sigma
-                        curr.next.list_sigma_R_inside.inset_node_to_begin_list(add_to_R)
-                        main_list.delete_node_from_list(curr)
-                        break
-            prev = curr
+                if curr.next:
+                    if curr.next.name == "CARTESIAN" or curr.next.name == "NJOIN":
+                        if is_condition(sigma, arr):
+                            add_to_R = Node()
+                            add_to_R.name = "SIGMA"
+                            add_to_R.condition = sigma
+                            curr.next.list_sigma_R_inside.inset_node_to_begin_list(add_to_R)
+                            main_list.delete_node_from_list(curr)
+                            break
             curr = curr.next
 
-        #main_list.print_query()
+        main_list.print_query()
         self.list = main_list
         return main_list
 
@@ -163,27 +240,25 @@ class Switch():
             main_list = create_list(self.query)
         else:
             main_list = self.list
-        main_list.print_query()
         curr = main_list.head
-        prev = None
         arr = ["S.D", "S.E", "S.F", "S.H", "S.I"]
         while curr is not None:
             if curr.name == "SIGMA":
                 sigma = curr.condition
+                if curr.next:
+                    if curr.next.name == "CARTESIAN" or curr.next.name == "NJOIN":
+                        if is_condition(sigma, arr):
+                            add_to_S = Node()
+                            add_to_S.name = "SIGMA"
+                            add_to_S.condition = sigma
+                            curr.next.list_sigma_S_inside.inset_node_to_begin_list(add_to_S)
+                            main_list.delete_node_from_list(curr)
+                            break
 
-                if curr.next.name == "CARTESIAN" or curr.next.name == "NJOIN":
-                    if is_condition(sigma, arr):
-                        add_to_S = Node()
-                        add_to_S.name = "SIGMA"
-                        add_to_S.condition = sigma
-                        curr.next.list_sigma_S_inside.inset_node_to_begin_list(add_to_S)
-                        main_list.delete_node_from_list(curr)
-                        break
-            prev = curr
             curr = curr.next
 
         self.list = main_list
-        #main_list.print_query()
+        main_list.print_query()
         return main_list
 
     def rule_5a(self):
@@ -193,7 +268,6 @@ class Switch():
             main_list = create_list(self.query)
         else:
             main_list = self.list
-        main_list.print_query()
         curr = main_list.head
         prev = None
         while curr is not None:
@@ -201,29 +275,27 @@ class Switch():
                 pi = curr.attributes
                 if pi.find(',') != -1:
                     pi = pi.split(',')
-
-                if curr.next.name == "SIGMA":
-                    sigma = curr.next
-                    condition = sigma.condition
-                    if is_condition(condition, pi):
-                        if prev is None:
-                            main_list.head = sigma
-                            temp = sigma.next
-                            sigma.next = curr
-                            curr.next = temp
-                        else:
-                            prev.next = sigma
-                            temp = sigma.next
-                            sigma.next = curr
-                            curr.next = temp
-
-                        break
-
+                if curr.next:
+                    if curr.next.name == "SIGMA":
+                        sigma = curr.next
+                        condition = sigma.condition
+                        if is_condition(condition, pi):
+                            if prev is None:
+                                main_list.head = sigma
+                                temp = sigma.next
+                                sigma.next = curr
+                                curr.next = temp
+                            else:
+                                prev.next = sigma
+                                temp = sigma.next
+                                sigma.next = curr
+                                curr.next = temp
+                            break
             prev = curr
             curr = curr.next
 
         self.list = main_list
-        #main_list.print_query()
+        main_list.print_query()
         return main_list
 
     def rule_11b(self):
@@ -233,268 +305,38 @@ class Switch():
             main_list = create_list(self.query)
         else:
             main_list = self.list
-        #main_list = self.rule_6()
-        main_list.print_query()
         curr = main_list.head
-        prev = None
         while curr is not None:
             if curr.name == "SIGMA":
                 sigma = curr.condition
+                if curr.next:
+                    if curr.next.name == "CARTESIAN":
+                        if is_NJOIN(sigma):
+                            NJOIN_node = Node()
+                            NJOIN_node.name = "NJOIN"
+                            R_node = Node()
+                            R_node.name = "NJOIN"
+                            R_node.tables = "R"
+                            NJOIN_node.list_sigma_R_inside.inset_node_to_begin_list(R_node)
 
-                if curr.next.name == "CARTESIAN":
-                    if is_NJOIN(sigma):
-                        NJOIN_node = Node()
-                        NJOIN_node.name = "NJOIN"
-                        R_node = Node()
-                        R_node.name = "NJOIN"
-                        R_node.tables = "R"
-                        NJOIN_node.list_sigma_R_inside.inset_node_to_begin_list(R_node)
+                            S_node = Node()
+                            S_node.name = "NJOIN"
+                            S_node.tables = "S"
+                            NJOIN_node.list_sigma_S_inside.inset_node_to_begin_list(S_node)
 
-                        S_node = Node()
-                        S_node.name = "NJOIN"
-                        S_node.tables = "S"
-                        NJOIN_node.list_sigma_S_inside.inset_node_to_begin_list(S_node)
+                            main_list.insert_node_to_end_list(NJOIN_node)
+                            main_list.delete_node_from_list(curr.next)
+                            main_list.delete_node_from_list(curr)
+                            break
 
-                        main_list.insert_node_to_end_list(NJOIN_node)
-                        main_list.delete_node_from_list(curr.next)
-                        main_list.delete_node_from_list(curr)
-                        break
-            prev = curr
             curr = curr.next
 
-        #main_list.print_query()
+        main_list.print_query()
         self.list = main_list
         return main_list
 
-def is_int(string):
-    if string[0] == '-':
-        return is_unsigned(string[1:])
-    return is_unsigned(string)
-
-def is_unsigned(string):
-     if not string:
-       return True
-     elif is_digit(string[0]):
-         return is_unsigned(string[1:])
-     return False
-
-def is_digit(digit):
-    return digit.isdigit()
-
-def is_attribute_list(string, arr_of_table):
-    if (string == "*"):
-        return True
-    else:
-        return is_att_list(string, arr_of_table)
-
-
-# recursive function which check the attributes
-def is_att_list(string, arr_of_table):
-    if (is_single_attribute(string, arr_of_table) == True):
-        return True
-    elif not string:
-        return False
-
-    else:
-        i = string.find(",")
-        if i == -1:
-            i = 0
-        if (is_single_attribute(string[0:i], arr_of_table) == True):
-            return (is_att_list(string[i + 1:], arr_of_table))
-
-
-def compare_attribute(string):
-    if string == "R.A":
-        return True
-    elif string == "R.B":
-        return True
-    elif string == "R.C":
-        return True
-    elif string == "R.D":
-        return True
-    elif string == "R.E":
-        return True
-    elif string == "S.D":
-        return True
-    elif string == "S.E":
-        return True
-    elif string == "S.F":
-        return True
-    elif string == "S.H":
-        return True
-    elif string == "S.I":
-        return True
-    else:
-        return False
-
-
-# checking if its the right attribute and table
-def is_single_attribute(string, arr_of_table):
-    flag = False
-    # in case there is only one table
-    if isinstance(arr_of_table, str):
-        if string.split(".")[0] != arr_of_table:
-            return False
-
-    else:
-        # in case there are more then one table
-        for arr_i in arr_of_table:
-            if arr_i == string:
-                flag = True
-                return True
-        if not flag:
-            return False
-
-
-########################################################################
-
-# checking if its the correct table
-def is_single_table(string):
-    if string == "R":
-        return True
-    elif string == "S":
-        return True
-    else:
-        return False
-
-
-# recursive func which check the tables
-def is_table_list(string):
-    if (is_single_table(string) == True):
-        return True
-    elif not string:
-        return False
-    else:
-        i = string.find(",")
-        if i == -1:
-            i = 0
-        if (is_single_table(string[0:i]) == True):
-            return (is_table_list(string[i + 1:]))
-
-
-#############################################################################
-
-
-def is_condition(string, arr_of_table):
-    if is_simple_condition(string, arr_of_table):
-        return True
-
-    elif string[0] == '(' and string[len(string) - 1] == ')':
-        new_string = string[1:-1]
-        if is_condition(new_string, arr_of_table):
-            return True
-
-    ANDindex = string.find("AND")
-    ORindex = string.find("OR")
-
-    if ANDindex != -1 or ORindex != -1:
-
-        if ORindex != -1 and ANDindex != -1:
-            if ANDindex < ORindex:
-                if string[0] == '(' and string[ORindex-1] == ')':
-                    left_exp = string[:ORindex]
-                    right_exp = string[ORindex + 2:]
-                else:
-                    left_exp = string[:ANDindex]
-                    right_exp = string[ANDindex + 3:]
-            else:
-                if string[0] == '(' and string[ANDindex - 1] == ')':
-                    left_exp = string[:ANDindex]
-                    right_exp = string[ANDindex + 3:]
-                else:
-                    left_exp = string[:ORindex]
-                    right_exp = string[ORindex + 2:]
-
-        elif ORindex == -1:
-            left_exp = string[:ANDindex]
-            right_exp = string[ANDindex + 3:]
-
-        else:
-            left_exp = string[:ORindex]
-            right_exp = string[ORindex + 2:]
-
-        if len(left_exp) == 0 or len(right_exp) == 0:
-            return False
-
-        else:
-            return is_condition(left_exp, arr_of_table) and is_condition(right_exp, arr_of_table)
-
-    else:
-        return False
-
-
-def is_simple_condition(string, arr_of_table):
-    op = find_op(string)
-    if not op:
-        return False
-    splited_string = string.split(op)
-    left_exp = splited_string[0]
-    right_exp = splited_string[1]
-
-    if len(left_exp) == 0 or len(right_exp) == 0:
-        return False
-
-    return  is_constant(left_exp, arr_of_table) and is_constant(right_exp, arr_of_table)
-
-
-#check if the given string is int, attribute or string
-def is_constant(string, arr_of_table):
-
-    if is_int(string):
-        return True
-    elif is_single_attribute(string, arr_of_table):
-        return True
-    elif is_string(string):
-        return True
-
-    else:
-        return False
-
-
-def is_string(string):
-
-    if len(string) > 2:
-        if (string[0] == '"' and string[len[string] - 1] == "'") or \
-                (string[0] == "’" and string[len(string) - 1] == "’") or\
-                (string[0] == "'" and string[len(string) - 1] == "'"):
-            return True
-
-    return False
-
-#function to find the operator in the string
-def find_op(string):
-    op = False
-    for x in string:
-        if op != False:
-            if is_rel_op(op + x):
-                op = op + x
-            return op
-
-        if is_rel_op(x):
-            op = x
-
-    return op
-
-
-# checking the operations
-def is_rel_op(string):
-    if string == "=":
-        return True
-    elif string == "<>":
-        return True
-    elif string == ">=":
-        return True
-    elif string == "<=":
-        return True
-    elif string == ">":
-        return True
-    elif string == "<":
-        return True
-    else:
-        return False
 
 def is_NJOIN(string):
-
     if string.find("AND") == -1:
         return False
     split_string = string.split("AND")
@@ -511,6 +353,83 @@ def is_NJOIN(string):
 
     return False
 
+
+def find_and(sigma):
+    ANDindex = sigma.find("AND")
+
+    while ANDindex != -1:
+        left_exp = sigma[:ANDindex]
+        right_exp = sigma[ANDindex + 3:]
+
+        count_left_par = left_exp.count("(")
+        count_right_par = left_exp.count(")")
+
+        if count_left_par == count_right_par:
+            count_left_par = right_exp.count("(")
+            count_right_par = right_exp.count(")")
+
+            if count_left_par == count_right_par:
+                return ANDindex
+
+        temp_index = right_exp.find("AND")
+        if temp_index == -1:
+            return -1
+
+        ANDindex = ANDindex + 3 + temp_index
+
+    return -1
+
+
+def print_sigma(curr, variables, arr_R, arr_S):
+    print(curr.name + "[" + curr.condition + "]")
+    print('\t', f"input: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r}")
+    variables.i = variables.i + 1
+    variables.input_n = variables.input_n * replace_chars(curr.condition, arr_R, arr_S)
+    print('\t', f"output: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r}")
+    print('\n')
+
+def print_cartesian(curr, variables, variables_R, variables_S):
+    print(curr.name)
+    print('\t', f"input: n_R={variables_R.input_n} n_S={variables_S.input_n} "
+                f"r_R={variables_R.input_r} r_S={variables_S.input_r}")
+    variables.input_n = variables_S.input_n * variables_R.input_n
+    variables.input_r = variables_S.input_r + variables_R.input_r
+    print('\t', f"output: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r} ")
+    print('\n')
+
+def print_pi(curr, variables):
+    print(curr.name + "[" + curr.attributes + "]")
+    print('\t', f"input: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r}")
+    variables.i = variables.i + 1
+    if curr.attributes.find(",") == -1:
+        variables.input_r = 4
+    else:
+        pi_arr = curr.attributes.split(",")
+        variables.input_r = len(pi_arr) * 4
+    print('\t', f"output: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r}")
+    print('\n')
+
+def replace_chars(string, arr_R, arr_S):
+    new_string = copy.deepcopy(string)
+    new_string = new_string.replace("=", "")
+    for c in new_string:
+        if '0' <= c <= '9':
+            new_string = new_string.replace(c, "")
+
+    new_string = new_string.replace("R.A", "(1/" + str(arr_R[0]) + ")")
+    new_string = new_string.replace("R.B", "(1/" + str(arr_R[1]) + ")")
+    new_string = new_string.replace("R.C", "(1/" + str(arr_R[2]) + ")")
+    new_string = new_string.replace("R.D", "(1/" + str(arr_R[3]) + ")")
+    new_string = new_string.replace("R.E", "(1/" + str(arr_R[4]) + ")")
+    new_string = new_string.replace("S.D", "(1/" + str(arr_S[0]) + ")")
+    new_string = new_string.replace("S.E", "(1/" + str(arr_S[1]) + ")")
+    new_string = new_string.replace("S.F", "(1/" + str(arr_S[2]) + ")")
+    new_string = new_string.replace("S.H", "(1/" + str(arr_S[3]) + ")")
+    new_string = new_string.replace("S.I", "(1/" + str(arr_S[4]) + ")")
+    new_string = new_string.replace("AND", "*")
+    new_string = new_string.replace("OR", "+")
+
+    return eval(new_string)
 
 
 menu_part()

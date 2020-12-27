@@ -1,3 +1,6 @@
+import copy
+
+
 class Node:
     def __init__(self):
         self.name = "UNDEFINED"
@@ -53,14 +56,6 @@ class LinkedList:
         self.head = None
         self.size = 0
 
-    # def is_equal_lists(self, other):
-    #     if (self is None and other is not None) or (self is not None and other is None):
-    #         return False
-    #
-    #     if self is None and other is None:
-    #         return True
-    #
-    #     return self.head.is_equal(other.head)
 
     def print_query(self):
         counter = 0
@@ -81,7 +76,7 @@ class LinkedList:
 
             curr = curr.next
         print(")" * counter)
-        print('\n')
+       # print('\n')
 
     def print_list(self):
         curr = self.head
@@ -141,6 +136,23 @@ class LinkedList:
         self.head = node
         self.size = self.size + 1
 
+    def reverse_list(self):
+
+        new_list = LinkedList()
+        curr = self.head
+        while curr:
+            new_curr = copy.deepcopy(curr)
+            new_list.inset_node_to_begin_list(new_curr)
+            curr = curr.next
+
+        return new_list
+
+class information_for_3:
+    def __init__(self):
+        self.i = 1
+        self.input_n = 0
+        self.input_r = 0
+
 
 def create_list(query):
     query = remove_spaces(query)
@@ -152,20 +164,11 @@ def create_list(query):
     SIGMA = condition[1]
     SIGMA = SIGMA[0:-1]
 
-    CARTESIAN = condition[0].split("FROM")[1]
-
     query_list = LinkedList()
     PI_node = Node()
     PI_node.name = "PI"
     PI_node.attributes = PI
     query_list.insert_node_to_end_list(PI_node)
-
-    #################################################
-    # SIGMA_node2 = Node()
-    # SIGMA_node2.name = "SIGMA"
-    # SIGMA_node2.condition = "S.E=2"
-    # query_list.insert_node_to_end_list(SIGMA_node2)
-    #################################################
 
     SIGMA_node = Node()
     SIGMA_node.name = "SIGMA"
@@ -174,7 +177,6 @@ def create_list(query):
 
     CARTESIAN_node = Node()
     CARTESIAN_node.name = "CARTESIAN"
-    # CARTESIAN_node.tables = CARTESIAN
     R_node = Node()
     R_node.name = "CARTESIAN"
     R_node.tables = "R"
@@ -185,14 +187,9 @@ def create_list(query):
     S_node.tables = "S"
     CARTESIAN_node.list_sigma_S_inside.inset_node_to_begin_list(S_node)
 
-    # temp = Node()
-    # temp.name = "SIGMA"
-    # temp.condition = "S.E>10"
-    # CARTESIAN_node.list_sigma_S_inside.inset_node_to_begin_list(temp)
 
     query_list.insert_node_to_end_list(CARTESIAN_node)
 
-    # query_list.print_query()
 
     return query_list
 
@@ -208,33 +205,3 @@ def remove_spaces(string):
         return new_string
 
 
-def rule_4(sigma_list):
-    ANDindex = find_and(sigma_list[1])
-
-    if ANDindex == -1:
-        return False
-
-    left_exp = sigma_list[1][0:ANDindex]
-    right_exp = sigma_list[1][ANDindex + 3:]
-
-    newSelectionList = ["SIGMA", right_exp, sigma_list[2]]
-    SelectionList = ["SIGMA", left_exp, newSelectionList]
-
-    return SelectionList
-
-
-def find_and(sigma):
-    ANDindex = sigma.find("AND")
-
-    if ANDindex == -1:
-        return -1
-
-    if sigma[0] == '(':
-        right_exp = sigma[ANDindex + 3:]
-        ANDindex = ANDindex + 3 + find_and(right_exp)
-
-    return ANDindex
-
-# query = "SELECT R.D, S.E FROM R,S WHERE R.E=S.E AND R.D=S.D ;"
-# query = "SELECT R.D, S.E FROM R,S WHERE S.E > 3;"
-# create_list(query)
