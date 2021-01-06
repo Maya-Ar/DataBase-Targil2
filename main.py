@@ -65,7 +65,10 @@ class LinkedList:
                 print(curr.name, '[', curr.attributes, '](', end='', sep='')
                 counter = counter + 1
             elif curr.name == "SIGMA":
-                print(curr.name, '[', curr.condition, '](', end='', sep='')
+                cond = curr.condition
+                cond = cond.replace("AND", " AND ")
+                cond = cond.replace("OR", " OR ")
+                print(curr.name, '[', cond, '](', end='', sep='')
                 counter = counter + 1
             elif curr.name == "CARTESIAN" or curr.name == "NJOIN":
                 print(curr.name, '(', end='', sep='')
@@ -76,7 +79,6 @@ class LinkedList:
 
             curr = curr.next
         print(")" * counter)
-       # print('\n')
 
     def print_list(self):
         curr = self.head
@@ -89,7 +91,10 @@ class LinkedList:
                 if curr.name == "CARTESIAN" or curr.name == "NJOIN":
                     print(curr.tables, ')', end='', sep='')
                 if curr.name == "SIGMA":
-                    print(curr.name, '[', curr.condition, '](', end='', sep='')
+                    cond = curr.condition
+                    cond = cond.replace("AND", " AND ")
+                    cond = cond.replace("OR", " OR ")
+                    print(curr.name, '[', cond, '](', end='', sep='')
                     counter = counter + 1
 
             curr = curr.next
@@ -162,7 +167,8 @@ def create_list(query):
 
     condition = query.split("WHERE")
     SIGMA = condition[1]
-    SIGMA = SIGMA[0:-1]
+    if SIGMA.find(";") != -1:
+        SIGMA = SIGMA[0:-1]
 
     query_list = LinkedList()
     PI_node = Node()

@@ -7,15 +7,16 @@ import copy
 def menu_part():
     print("Hello, Please Enter Your Query")
     # query = input()
-    # query = "SELECT R.D, S.E FROM R,S WHERE R.D>4 " ###not working -  the problem is on create query: condition of sigma is just R.D> and not R.D>4    :(
+
+    #query = "SELECT R.D, S.E FROM R,S WHERE R.D>4 "
     # query = "SELECT R.D, S.E FROM R,S WHERE (S.B>4 AND (R.A=10 AND S.E=2)) AND S.A=4 ;"
-    # query = "SELECT R.D, S.E FROM R,S WHERE (S.B>4 OR (R.A=10 OR S.E=2)) AND S.A=4 ;" ##not working
-    # query = "SELECT R.D, S.E FROM R,S WHERE S.E = R.E AND S.D = R.D;"
+    #query = "SELECT R.D, S.E FROM R,S WHERE (S.B=4 OR (R.A=10 OR S.E=2)) AND S.A=4 ;"
+    #query = "SELECT R.D, S.E FROM R,S WHERE S.E = R.E AND S.D = R.D;"
     # query = "SELECT R.D, S.E FROM R,S WHERE R.D=4 AND R.A=10 ;"
     # query = "SELECT R.D, S.E FROM R,S WHERE S.B>4 AND (S.B=12 AND S.C=6) ;"
-    # query = "SELECT R.D, S.E FROM R,S WHERE S.B>4 OR (S.B=12 AND S.C=6) ;"
-    #query = "SELECT R.D, S.E FROM R,S WHERE (S.E=12 AND S.H=6) OR (S.I=12 AND S.D=6) ;"  ##not working
-    query = "SELECT R.A, R.B, R.C. R.D, R.E, S.D, S.E, S.F, S.G, S.I, S.H FROM R,S WHERE (R.A=10 AND S.H=12)  AND (S.E = 2 AND S.D = 3) ;"
+    #query = "SELECT R.D, S.E FROM R,S WHERE S.B=4 AND (S.B=12 OR S.C=6) ;"
+    #query = "SELECT R.D, S.E FROM R,S WHERE (R.E=12 AND R.A=6) AND (S.I=12 AND S.D=6) ;"  ##not working
+    query = "SELECT R.A, R.B, R.C. R.D, R.E, S.D, S.E, S.F, S.G, S.I, S.H FROM R,S WHERE (R.B=10 AND S.H=R.A)  AND (S.E = 2 AND S.D = 3)"
 
     my_option = Switch(query)
     while True:
@@ -24,10 +25,11 @@ def menu_part():
         print("[1] part 1")
         print("[2] part 2")
         print("[3] part 3")
-        print("[4] Exit")
+        print("[4] new query")
+        print("[5] Exit")
         option = input()
 
-        if option == "4":
+        if option == "5":
             print("Bye")
             break
         else:
@@ -76,12 +78,14 @@ class Switch():
 
             self.list = None
 
+        print("\nThe 4 queries are:\n")
         for y in range(4):
             print("arr[", y, "] ", end='', sep='')
             if lists_arr[y] is not None:
                 lists_arr[y].print_query()
             else:
                 print("None")
+        print('\n')
         self.four_lists = lists_arr
 
     def function_part_3(self):
@@ -138,7 +142,11 @@ class Switch():
                             print_sigma(curr_R, variables_R, arr_R, arr_S)
                         curr_R = curr_R.next
 
-                    print_cartesian(curr, variables, variables_R, variables_S)
+                    if curr.name == "CARTESIAN":
+                        print_cartesian(curr, variables, variables_R, variables_S)
+
+                    elif curr.name == "NJOIN":
+                        print_njoin(curr, variables, variables_R, variables_S, arr_R, arr_S)
 
                 if curr.name == "SIGMA":
                     print_sigma(curr, variables, arr_R, arr_S)
@@ -147,6 +155,12 @@ class Switch():
                     print_pi(curr, variables)
 
                 curr = curr.next
+
+
+    def function_part_4(self):
+        print("Please Enter Your Query")
+        self.query = input()
+
 
     def rule_4(self):
         print("rule_4")
@@ -337,6 +351,7 @@ class Switch():
 
 
 def is_NJOIN(string):
+
     if string.find("AND") == -1:
         return False
     split_string = string.split("AND")
@@ -381,18 +396,38 @@ def find_and(sigma):
 
 
 def print_sigma(curr, variables, arr_R, arr_S):
-    print(curr.name + "[" + curr.condition + "]")
+    cond = curr.condition
+    cond = cond.replace("AND", " AND ")
+    cond = cond.replace("OR", " OR ")
+    print(curr.name + "[" + cond + "]")
     print('\t', f"input: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r}")
     variables.i = variables.i + 1
     variables.input_n = variables.input_n * replace_chars(curr.condition, arr_R, arr_S)
+    if variables.input_n < 1:
+        variables.input_n = 1
+    else:
+        variables.input_n = int(variables.input_n)
     print('\t', f"output: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r}")
     print('\n')
+
 
 def print_cartesian(curr, variables, variables_R, variables_S):
     print(curr.name)
     print('\t', f"input: n_R={variables_R.input_n} n_S={variables_S.input_n} "
                 f"r_R={variables_R.input_r} r_S={variables_S.input_r}")
     variables.input_n = variables_S.input_n * variables_R.input_n
+    variables.input_r = variables_S.input_r + variables_R.input_r
+    variables.i = max(variables_S.i, variables_R.i)
+    if variables.i > 1:
+        variables.i = variables.i + 1
+    print('\t', f"output: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r} ")
+    print('\n')
+
+def print_njoin(curr, variables, variables_R, variables_S, arr_R, arr_S):
+    print(curr.name)
+    print('\t', f"input: n_R={variables_R.input_n} n_S={variables_S.input_n} "
+                f"r_R={variables_R.input_r} r_S={variables_S.input_r}")
+    variables.input_n = (variables_S.input_n * variables_R.input_n) * (1/(max(arr_R[4],arr_S[1]) * max(arr_R[3], arr_S[0])))
     variables.input_r = variables_S.input_r + variables_R.input_r
     print('\t', f"output: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r} ")
     print('\n')
@@ -408,6 +443,7 @@ def print_pi(curr, variables):
         variables.input_r = len(pi_arr) * 4
     print('\t', f"output: n_Scheme{variables.i}={variables.input_n} R_Scheme{variables.i}={variables.input_r}")
     print('\n')
+
 
 def replace_chars(string, arr_R, arr_S):
     new_string = copy.deepcopy(string)
@@ -428,8 +464,30 @@ def replace_chars(string, arr_R, arr_S):
     new_string = new_string.replace("S.I", "(1/" + str(arr_S[4]) + ")")
     new_string = new_string.replace("AND", "*")
     new_string = new_string.replace("OR", "+")
+    new_string = repalce_linked_chars(new_string, arr_R, arr_S)
+
 
     return eval(new_string)
+
+
+def repalce_linked_chars(string, arr_R, arr_S):
+    new_string = copy.deepcopy(string)
+    for c in arr_R:
+        new_string = repalce_linked_chars_to_1(new_string, c, arr_R, arr_S)
+    for c in arr_S:
+        new_string = repalce_linked_chars_to_1(new_string, c, arr_R, arr_S)
+    return new_string
+
+
+def repalce_linked_chars_to_1(string, first_char, arr_R, arr_S):
+    new_string = copy.deepcopy(string)
+    for c in arr_R:
+        new_string = new_string.replace("(1/" + str(first_char) + ")(1/" + str(c) + ")",
+                                        "(1/" + str(max(first_char, c)) + ")")
+    for c in arr_S:
+        new_string = new_string.replace("(1/" + str(first_char) + ")(1/" + str(c) + ")",
+                                        "(1/" + str(max(first_char, c)) + ")")
+    return new_string
 
 
 menu_part()
