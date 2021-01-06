@@ -6,19 +6,9 @@ import copy
 
 def menu_part():
     print("Hello, Please Enter Your Query")
-    # query = input()
-
-    #query = "SELECT R.D, S.E FROM R,S WHERE R.D>4 "
-    # query = "SELECT R.D, S.E FROM R,S WHERE (S.B>4 AND (R.A=10 AND S.E=2)) AND S.A=4 ;"
-    #query = "SELECT R.D, S.E FROM R,S WHERE (S.B=4 OR (R.A=10 OR S.E=2)) AND S.A=4 ;"
-    #query = "SELECT R.D, S.E FROM R,S WHERE S.E = R.E AND S.D = R.D;"
-    # query = "SELECT R.D, S.E FROM R,S WHERE R.D=4 AND R.A=10 ;"
-    # query = "SELECT R.D, S.E FROM R,S WHERE S.B>4 AND (S.B=12 AND S.C=6) ;"
-    #query = "SELECT R.D, S.E FROM R,S WHERE S.B=4 AND (S.B=12 OR S.C=6) ;"
-    #query = "SELECT R.D, S.E FROM R,S WHERE (R.E=12 AND R.A=6) AND (S.I=12 AND S.D=6) ;"  ##not working
-    query = "SELECT R.A, R.B, R.C. R.D, R.E, S.D, S.E, S.F, S.G, S.I, S.H FROM R,S WHERE (R.B=10 AND S.H=R.A)  AND (S.E = 2 AND S.D = 3)"
-
+    query = input()
     my_option = Switch(query)
+
     while True:
 
         print("\nChoose One Of The Option:")
@@ -57,6 +47,7 @@ class Switch():
 
     def function_part_1(self):
         print(self.query)
+        self.list = None
         self.menu_rule()
 
     def function_part_2(self):
@@ -194,6 +185,7 @@ class Switch():
 
     def rule_4a(self):
         print("rule 4a")
+
         if self.list is None:
             main_list = create_list(self.query)
         else:
@@ -227,6 +219,8 @@ class Switch():
             main_list = create_list(self.query)
         else:
             main_list = self.list
+
+
         curr = main_list.head
         arr = ["R.A", "R.B", "R.C", "R.D", "R.E"]
         while curr is not None:
@@ -254,6 +248,7 @@ class Switch():
             main_list = create_list(self.query)
         else:
             main_list = self.list
+
         curr = main_list.head
         arr = ["S.D", "S.E", "S.F", "S.H", "S.I"]
         while curr is not None:
@@ -465,8 +460,6 @@ def replace_chars(string, arr_R, arr_S):
     new_string = new_string.replace("AND", "*")
     new_string = new_string.replace("OR", "+")
     new_string = repalce_linked_chars(new_string, arr_R, arr_S)
-
-
     return eval(new_string)
 
 
